@@ -100,6 +100,7 @@ class Player:
             self.has_key = True
 
         if self.has_key and self.x == door_x and self.y == door_y:
+
             font = pygame.font.Font('freesansbold.ttf', 100)
             text = font.render('Level Complete', True, (0,255,255))
             textRect = text.get_rect()
