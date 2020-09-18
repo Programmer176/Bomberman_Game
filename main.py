@@ -9,6 +9,7 @@ from Walls.Breakable import Br
 from door_and_key.door import door
 from door_and_key.key import key
 from Game_over_screen import game_over_screen
+from You_win_screen import you_win_screen
 
 
 WIN = basics.WIN
@@ -71,20 +72,33 @@ def main():
 
     def redraw_window():
         WIN.blit(BG[bg_num], (0,0))
-        for player in players:
-            player.draw(WIN)
-            player.plant(WIN)
-            player.cooldown(WIN)
-            player.exit_door(WIN,Key,Door.door_x,Door.door_y)
+
         # enemy1.draw(WIN)
         Door.draw(WIN)
         Key.draw(WIN)
 
         unbr_wall.draw(WIN)
         Br_wall.draw(WIN)
+
         for enemy in enemies:
+            for player in players:
+                if enemy.kill(player.bomb_x, player.bomb_y, player.cooldown_counter):
+                    enemies.remove(enemy)
             enemy.draw(WIN)
+
+        for player in players:
+            player.draw(WIN)
+            player.plant(WIN)
+            player.cooldown(WIN)
+            if player.Player_kill(player.cooldown_counter):
+                game_over_screen()
+                return False
+            if player.exit_door(WIN,Key,Door.door_x,Door.door_y):
+                you_win_screen()
+                return False
+
         pygame.display.update()
+        return True
 
     while run:
         clock.tick(basics.FPS)
@@ -113,9 +127,9 @@ def main():
                 enemies.append(Enemy(pos_x, pos_y, ENEMIES[i%4]))
             trigger_level = False
 
-        
-        redraw_window()
 
+        if not redraw_window():
+            run = False
 
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -178,6 +192,9 @@ def main():
                 #     enemy.mobility[1] = 0
                 #     # print("Can't move down")
             enemy.move()
+
+
+
             for player in players:
                 if collide(player, enemy):
                     print("U r so dead!")
@@ -186,4 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-        
